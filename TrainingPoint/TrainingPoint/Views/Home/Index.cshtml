@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>TrainingPoint</h1>
+    <p class="lead">is a multi-tenant cloud application that uses Azure Active Directory for Authentication as well as Authorization.</p>
+    <p>
+        <small>
+            to try this app with your Azure Active Directory, first @Html.ActionLink("Sign Up", "SignUp", "SignUp"). Then, assign
+            users to the TrainingPoint application in the <a href="https://manage.windowsazure.com">Azure Management Portal</a>: Click on the Azure
+            Active Directory node, then select your directory, then under the 'Applications' tab select TrainingPoint. If you have Azure AD premium,
+            you can assign users as well as well as groups to the TrainingPoint, if not, assign users using the 'Users' tab. While assigning users
+            or groups, select the 'Trainer' role to allow them to create and share trainings or select the 'Trainee' role to allow them to only view
+            trainings in this application.
+        </small>
+    </p>
+    <p><small>Source code is here: <a href="https://github.com/dushyantgill/VipSwapper">https://github.com/dushyantgill/VipSwapper</a></small></p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Single Sign-on with Active Directory and Office 365</h2>
+        <p>
+            <small>
+                TrainingPoint is a multi-tenant web application. To enable customers to sign-in using their on-premises Active Directory accounts
+                or their Office 365 accounts, TrainingPoint uses Azure Active Directory as the identity provider.
+            </small>
+        </p>
+        <p><a class="btn btn-default" href="http://msdn.microsoft.com/en-us/library/azure/dn151122.aspx">Learn more about Azure AD multi-tenant apps&raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Application Roles</h2>
+        <p>
+            <small>
+
+                TrainingPoint uses Azure AD application roles for role-based access control. It declares two application roles: 'Trainer' and 'Trainee'.
+                Azure AD Users and Groups are assigned to these roles by the admin and when they sign-in to the application, the 'roles' claim in the token
+                contatains the application role(s) that have been assigned to them.
+            </small>
+        </p>
+        <p><a class="btn btn-default" href="http://www.dushyantgill.com/blog/2014/12/10/roles-based-access-control-in-cloud-applications-using-azure-ad/">Learn more about Application Roles &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Groups Claim</h2>
+
+        <p>
+            <small>
+                TrainingPoint allows users (in the 'Trainer' role) to share the trainings they create with Active Directory groups.
+                TrainingPoint uses the Groups Claim feature of Azure AD to determine what AD groups the users is member of, then it allows
+                the user to see the trainings that have been shared with those groups.
+            </small>
+        </p>
+        <p><a class="btn btn-default" href="http://www.dushyantgill.com/blog/2014/12/10/authorization-cloud-applications-using-ad-groups/">Learn more about Groups Claim &raquo;</a></p>
+    </div>
+</div>

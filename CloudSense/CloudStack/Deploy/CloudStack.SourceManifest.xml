@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sitemanifest>
+  <IisApp path="X:\Dropbox\Code\SourceControl\VipSwapper\CloudSense\CloudStack\obj\Release\Package\PackageTmp" />
+  <setAcl path="X:\Dropbox\Code\SourceControl\VipSwapper\CloudSense\CloudStack\obj\Release\Package\PackageTmp" setAclResourceType="Directory" />
+  <setAcl path="X:\Dropbox\Code\SourceControl\VipSwapper\CloudSense\CloudStack\obj\Release\Package\PackageTmp" setAclUser="anonymousAuthenticationUser" setAclResourceType="Directory" />
+</sitemanifest>

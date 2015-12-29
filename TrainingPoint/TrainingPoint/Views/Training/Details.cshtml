@@ -1,0 +1,86 @@
+﻿@using TrainingPoint
+@using System.Web.Mvc.Html
+@model TrainingPoint.Models.Training
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Training</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatedByDisplay)
+        </dd>
+    </dl>
+    <hr />
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+
+<div>
+    <h4>Shared With</h4>
+    @using (Html.BeginForm("Share", "Training"))
+    {
+        @Html.AntiForgeryToken()
+
+        <dl class="dl-horizontal">
+            <dt style="width:300px">
+                @Html.HiddenFor(model => model.Id)
+                <input type="text" class="form-control" name="UserOrGroupSearchString" placeholder="User's email or Security Group's name" />
+            </dt>
+            <dd>
+                <input type="submit" value="Share" class="btn btn-default" />
+            </dd>
+        </dl>
+    }
+    @if (Model.SharedWith != null)
+    {
+        var count = 0;
+        foreach (TrainingPoint.Models.AccessControlEntry ace in Model.SharedWith)
+        {
+            ++count;
+            using (Html.BeginForm("Unshare", "Training"))
+            {
+                <dl class="dl-horizontal" style="align-content:flex-start">
+                    <dt style="width:350px;text-align:left">
+                        @count. &nbsp; @ace.PrincipalDisplay
+                        <input type="hidden" name="Id" value='@ace.Id' />
+                        <input type="hidden" name="trainingId" value='@Model.Id'/>
+                        <button type="submit" class="btn btn-remove btn-xs">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </dt>
+                    <dd>
+                    </dd>
+                </dl>
+            }
+        }
+    }
+</div>

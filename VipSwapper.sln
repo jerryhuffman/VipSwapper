@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CloudSense", "CloudSense", "{5FFF2C36-CE83-4066-9B42-55327B754D3C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrainingPoint", "TrainingPoint", "{6A2B4C1A-AE42-459A-B898-F4CCE8887310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStack", "CloudSense\CloudStack\CloudStack.csproj", "{C4B260AF-1E71-4074-A3BD-E62C1E18C461}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStackConsoleInstaller", "CloudSense\CloudStackConsoleInstaller\CloudStackConsoleInstaller.csproj", "{13308C50-9041-4189-B98F-5801FCADC2AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSense", "CloudSense\CloudSense\CloudSense.csproj", "{0D8FBB97-03E4-4870-83E3-6128BB48B7B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingPoint", "TrainingPoint\TrainingPoint\TrainingPoint.csproj", "{CA602145-EF25-45D7-84F2-196C6CC76939}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4B260AF-1E71-4074-A3BD-E62C1E18C461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4B260AF-1E71-4074-A3BD-E62C1E18C461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4B260AF-1E71-4074-A3BD-E62C1E18C461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4B260AF-1E71-4074-A3BD-E62C1E18C461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13308C50-9041-4189-B98F-5801FCADC2AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13308C50-9041-4189-B98F-5801FCADC2AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13308C50-9041-4189-B98F-5801FCADC2AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13308C50-9041-4189-B98F-5801FCADC2AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA602145-EF25-45D7-84F2-196C6CC76939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA602145-EF25-45D7-84F2-196C6CC76939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA602145-EF25-45D7-84F2-196C6CC76939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA602145-EF25-45D7-84F2-196C6CC76939}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C4B260AF-1E71-4074-A3BD-E62C1E18C461} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
+		{13308C50-9041-4189-B98F-5801FCADC2AC} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
+		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
+		{CA602145-EF25-45D7-84F2-196C6CC76939} = {6A2B4C1A-AE42-459A-B898-F4CCE8887310}
+	EndGlobalSection
+EndGlobal
