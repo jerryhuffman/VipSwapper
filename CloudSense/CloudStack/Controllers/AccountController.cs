@@ -32,8 +32,8 @@ namespace CloudSense.Controllers
             if (!Request.IsAuthenticated)
             {
                 // note configuration (keys, etc…) will not necessarily understand this authority.
-                HttpContext.GetOwinContext().Environment.Add("Authority", string.Format(ConfigurationManager.AppSettings["ida:Authority"] + "OAuth2/Authorize", directoryName));
-                if (isMSA) HttpContext.GetOwinContext().Environment.Add("DomainHint", "live.com");
+                //HttpContext.GetOwinContext().Environment.Add("Authority", string.Format(ConfigurationManager.AppSettings["Authority"] + "OAuth2/Authorize", directoryName));
+                //if (isMSA) HttpContext.GetOwinContext().Environment.Add("DomainHint", "live.com");
                 HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = this.Url.Action("Index", "Home") }, OpenIdConnectAuthenticationDefaults.AuthenticationType);
             }
         }

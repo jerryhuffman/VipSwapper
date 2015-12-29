@@ -12,8 +12,6 @@ namespace CloudStack.Models
         [NotMapped]
         public string DisplayName { get; set; }
         [NotMapped]
-        public string OrganizationId { get; set; }
-        [NotMapped]
         public bool IsConnected { get; set; }
         public DateTime ConnectedOn { get; set; }
         public string ConnectedBy { get; set; }

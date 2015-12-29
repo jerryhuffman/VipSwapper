@@ -180,7 +180,7 @@ namespace CloudStack
             app.DisplayName = "CloudStack-" + Environment.MachineName;
             app.Homepage = Url;
             app.IdentifierUris = new string[1] { Url };
-            app.ReplyUrls = new string[1] { Url };
+            app.ReplyUrls = new string[3] { Url, "http://localhost", "https://localhost" };
             app.RequriredResourceAccess = new AADRequriredResourceAccess[2] {
                 new AADRequriredResourceAccess {
                     //CloudStack needs delegated access to Azure Active Directory Graph API
@@ -188,8 +188,8 @@ namespace CloudStack
                     ResourceAccess = new AADResourceAccess [2] {
                         //Sign-in and read user profile OAuth2Permission
                         new AADResourceAccess { Id = "311a71cc-e848-46a1-bdf8-97ff7156d8e6", Type = "Scope" },
-                        //Access the directory as the signed-in user OAuth2Permission
-                        new AADResourceAccess { Id = "a42657d6-7f20-40e3-b6f0-cee03008a62a", Type = "Scope" }
+                        //Read all users' basic profiles OAuth2Permission
+                        new AADResourceAccess { Id = "cba73afc-7f69-4d86-8450-4978e04ecd1a", Type = "Scope" }
                     }
                 },
                 new AADRequriredResourceAccess {

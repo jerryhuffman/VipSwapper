@@ -27,6 +27,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net;
 using System.Web.Mvc;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CloudStack
 {
@@ -36,7 +37,6 @@ namespace CloudStack
         public void ConfigureAuth(IAppBuilder app)
         {
             string ClientId = ConfigurationManager.AppSettings["ClientID"];
-            string Password = ConfigurationManager.AppSettings["Password"];
             string Authority = string.Format(ConfigurationManager.AppSettings["Authority"], ConfigurationManager.AppSettings["AADId"]);
             string AzureResourceManagerIdentifier = ConfigurationManager.AppSettings["AzureResourceManagerIdentifier"];
                         
@@ -74,15 +74,19 @@ namespace CloudStack
                         },
                         AuthorizationCodeReceived = (context) =>
                         {
-                            ClientCredential credential = new ClientCredential(ClientId, Password);
-                            string signedInUserUniqueName = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.Name).Value.Split('#')[context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.Name).Value.Split('#').Length - 1];
+                            X509Certificate2 keyCredential = new X509Certificate2(HttpContext.Current.Server.MapPath
+                                (ConfigurationManager.AppSettings["KeyCredentialPath"]), "", X509KeyStorageFlags.MachineKeySet);
+                            ClientAssertionCertificate clientAssertion = new ClientAssertionCertificate(ClientId, keyCredential);
+
+                            string signedInUserUniqueName = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.Name).Value
+                                .Split('#')[context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.Name).Value.Split('#').Length - 1];
 
                             var tokenCache = new ADALTokenCache(signedInUserUniqueName);
                             tokenCache.Clear();
 
                             AuthenticationContext authContext = new AuthenticationContext(Authority, tokenCache);
                             AuthenticationResult result = authContext.AcquireTokenByAuthorizationCode(
-                                context.Code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential);
+                                context.Code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), clientAssertion);
 
                             return Task.FromResult(0);
                         }
