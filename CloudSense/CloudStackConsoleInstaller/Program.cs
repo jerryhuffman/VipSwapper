@@ -24,11 +24,14 @@ namespace CloudStack
             Console.Write("Hello there. First, this installer will download the latest CloudStack binaries from Github." + 
                 " Then, it will configure a new website for CloudStack on this IIS server. Finally, it will register the" + 
                 " instance of CloudStack with your Azure Active Directory so that it can manage your Azure cloud.\n\n");
-            Console.Write("If that sounds good to you");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(" please hit enter.");
+            Console.Write("Sounds good? If so, hit enter. If not, close this widow.");
             Console.ResetColor();
             Console.ReadLine();
+            Console.Write("\n\nDownloading CloudStack binaries ... ");
+            string binDir = installer.DownloadCloudStackBinaries(ConfigurationManager.AppSettings["BinaryLocation"]);
+            Console.Write("Done. \nInstalling CloudStack website on this IIS server ...");
+            /*
             Console.Write("Ok, let's connect this CloudStack instance with your Azure Cloud.\n\n");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("Please enter the id of your Azure subscription that you wish to connect: ");
@@ -47,7 +50,29 @@ namespace CloudStack
             AADUser user = installer.GetAzureADUser(tokenResponse.AccessToken);
             Console.Write(" Done. \n\nWelcome {0}!", user.DisplayName);
             AADApplication app = installer.RegisterAzureADApplication(tokenResponse.AccessToken, "http://DUGILL-PARALLEL");
+            */
             //if (!string.IsNullOrEmpty(tokenResponse.Error) && tokenResponse.Error.Equals("code_expired", StringComparison.InvariantCultureIgnoreCase)) { }
+        }
+        public string DownloadCloudStackBinaries(string binaryLocation)
+        {
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(binaryLocation + "/CloudStack.zip?raw=true", Path.Combine(tempDirectory, "CloudStack.zip"));
+                client.DownloadFile(binaryLocation + "/CloudStack.SetParameters.xml?raw=true", Path.Combine(tempDirectory, "CloudStack.SetParameters.xml"));
+                client.DownloadFile(binaryLocation + "/CloudStack.deploy.cmd?raw=true", Path.Combine(tempDirectory, "CloudStack.deploy.cmd"));
+            }
+
+            return tempDirectory;
+        }
+        public string InstallCloudStackWebsite(string binaryLocation)
+        {
+            string url = null;
+
+
+
+            return url;
         }
         public string GetAADForSubscription(string subscriptionId)
         {
