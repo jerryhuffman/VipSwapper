@@ -12,6 +12,7 @@
     }
 </div>
 <div class="row">
+    @HttpContext.Current.Server.MapPath("\\CloudStackKeyCredential.pfx")
     @if (Request.IsAuthenticated && Model != null)
     {
     <table class="table table-striped table-condensed table-hover">
