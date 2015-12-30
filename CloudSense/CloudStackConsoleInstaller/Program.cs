@@ -12,6 +12,7 @@ using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Diagnostics;
 
 namespace CloudStack
 {
@@ -31,6 +32,8 @@ namespace CloudStack
             Console.Write("\n\nDownloading CloudStack binaries ... ");
             string binDir = installer.DownloadCloudStackBinaries(ConfigurationManager.AppSettings["BinaryLocation"]);
             Console.Write("Done. \nInstalling CloudStack website on this IIS server ...");
+            installer.InstallCloudStackWebsite(binDir);
+
             /*
             Console.Write("Ok, let's connect this CloudStack instance with your Azure Cloud.\n\n");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -70,7 +73,13 @@ namespace CloudStack
         {
             string url = null;
 
-
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = string.Format("/C {0}\\CloudStack.deploy.cmd /Y", binaryLocation);
+            process.StartInfo = startInfo;
+            process.Start();
 
             return url;
         }
