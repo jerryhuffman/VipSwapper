@@ -13,75 +13,53 @@ using System.Threading;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics;
+using System.IO.Compression;
+using Microsoft.Web.Administration;
 
 namespace CloudStack
 {
     class CloudStackConsoleInstaller
     {
+        public static string ClientID = "9d6614ce-9a62-464f-b0c6-3c97120fb98a";
+        public static string GraphResourceUri = "https://graph.windows.net";
+        public static string GraphUrl = "https://graph.windows.net/{0}?api-version=1.6";
+        public static string ARMResourceUri = "https://management.core.windows.net/";
+        public static string DeviceCodeUrl = "https://login.microsoftonline.com/{0}/oauth2/devicecode?api-version=1.0";
+        public static string TokenUrl = "https://login.microsoftonline.com/{0}/oauth2/token?api-version=1.0";
+        public static string KeyCredentialPath = @"C:\CloudStack";
+
         static void Main(string[] args)
         {
             CloudStackConsoleInstaller installer = new CloudStackConsoleInstaller();
             Console.Write("---------- CloudStack Installer ----------\n");
-            Console.Write("Hello there. First, this installer will download the latest CloudStack binaries from Github." + 
-                " Then, it will configure a new website for CloudStack on this IIS server. Finally, it will register the" + 
+            Console.Write("Hi there! \nFirst, this installer will download the latest CloudStack binaries." + 
+                " \nThen, it will configure a new website for CloudStack on this IIS server. \nFinally, it will register the" + 
                 " instance of CloudStack with your Azure Active Directory so that it can manage your Azure cloud.\n\n");
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write("Sounds good? If so, hit enter. If not, close this widow.");
             Console.ResetColor();
             Console.ReadLine();
-            Console.Write("\n\nDownloading CloudStack binaries ... ");
-            string binDir = installer.DownloadCloudStackBinaries(ConfigurationManager.AppSettings["BinaryLocation"]);
-            Console.Write("Done. \nInstalling CloudStack website on this IIS server ...");
-            installer.InstallCloudStackWebsite(binDir);
-
-            /*
-            Console.Write("Ok, let's connect this CloudStack instance with your Azure Cloud.\n\n");
+            Console.Write("\n1) Downloading CloudStack binaries ... ");
+            installer.DummyMethodDownloadCloudStackBinaries();
+            Console.Write("Done. \n\n2) Installing CloudStack website on this IIS server ... ");
+            installer.DummyMethodInstallCloudStackWebsite();
+            Console.Write("Done. \n\n3) Alright, let's connect this CloudStack instance with your Azure Cloud - ");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Please enter the id of your Azure subscription that you wish to connect: ");
+            Console.Write("please enter the id of your Azure subscription that you wish to connect: ");
             Console.ResetColor();
             string subscriptionId = Console.ReadLine();
             string aadId = installer.GetAADForSubscription(subscriptionId);
             DeviceAuthCodeResponse codeResponse = installer.GetDeviceAuthCode(aadId);
-            Console.Write("\nGot it. Next, we must create an application registration in your Azure Active Directory" +
-                " so that CloudStack can access your Azure cloud. For this, you need to authenticate with the account" +
-                " that you use to manage your Azure cloud:");
+            Console.Write("Got it. \nNow, you must authenticate with the account that you use to manage your Azure cloud - ");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(" use a web browser to open the page {0} and enter the code {1}.", codeResponse.VerificationUrl, codeResponse.UserCode);
+            Console.Write("use a web browser to open the page {0} and enter the code {1}.", codeResponse.VerificationUrl, codeResponse.UserCode);
             Console.ResetColor();
-            Console.Write("\n\nWaiting for you to complete authentication ...");
+            Console.Write("\nPatiently waiting ... ");
             DeviceAuthTokenResponse tokenResponse = installer.GetDeviceAuthToken(codeResponse, aadId);
             AADUser user = installer.GetAzureADUser(tokenResponse.AccessToken);
-            Console.Write(" Done. \n\nWelcome {0}!", user.DisplayName);
-            AADApplication app = installer.RegisterAzureADApplication(tokenResponse.AccessToken, "http://DUGILL-PARALLEL");
-            */
-            //if (!string.IsNullOrEmpty(tokenResponse.Error) && tokenResponse.Error.Equals("code_expired", StringComparison.InvariantCultureIgnoreCase)) { }
-        }
-        public string DownloadCloudStackBinaries(string binaryLocation)
-        {
-            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempDirectory);
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(binaryLocation + "/CloudStack.zip?raw=true", Path.Combine(tempDirectory, "CloudStack.zip"));
-                client.DownloadFile(binaryLocation + "/CloudStack.SetParameters.xml?raw=true", Path.Combine(tempDirectory, "CloudStack.SetParameters.xml"));
-                client.DownloadFile(binaryLocation + "/CloudStack.deploy.cmd?raw=true", Path.Combine(tempDirectory, "CloudStack.deploy.cmd"));
-            }
-
-            return tempDirectory;
-        }
-        public string InstallCloudStackWebsite(string binaryLocation)
-        {
-            string url = null;
-
-            Process process = new Process();
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = string.Format("/C {0}\\CloudStack.deploy.cmd /Y", binaryLocation);
-            process.StartInfo = startInfo;
-            process.Start();
-
-            return url;
+            Console.Write("Ah! welcome {0}! Registering CloudStack in your Azure Active Directory now ... ", user.DisplayName);
+            installer.RegisterAzureADApplication(tokenResponse.AccessToken, "http://localhost");
+            Console.Write(" All done.");
         }
         public string GetAADForSubscription(string subscriptionId)
         {
@@ -110,12 +88,12 @@ namespace CloudStack
         public DeviceAuthCodeResponse GetDeviceAuthCode(string aadId)
         {
             DeviceAuthCodeResponse codeResponse = null;
-            string url = string.Format(ConfigurationManager.AppSettings["DeviceCodeUrl"], aadId);
+            string url = string.Format(DeviceCodeUrl, aadId);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-            string postData = "client_id=" + HttpUtility.UrlEncode(ConfigurationManager.AppSettings["ClientID"]);
-            postData += "&resource=" + HttpUtility.UrlEncode(ConfigurationManager.AppSettings["GraphResourceUri"]);
+            string postData = "client_id=" + HttpUtility.UrlEncode(ClientID);
+            postData += "&resource=" + HttpUtility.UrlEncode(GraphResourceUri);
             byte[] data = encoding.GetBytes(postData);
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
@@ -137,15 +115,15 @@ namespace CloudStack
         public DeviceAuthTokenResponse GetDeviceAuthToken(DeviceAuthCodeResponse codeResponse, string aadId)
         {
             DeviceAuthTokenResponse tokenResponse = null;
-            string url = string.Format(ConfigurationManager.AppSettings["TokenUrl"], aadId);
+            string url = string.Format(TokenUrl, aadId);
 
             while (true)
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
                 string postData = "grant_type=device_code";
-                postData += "&client_id=" + HttpUtility.UrlEncode(ConfigurationManager.AppSettings["ClientID"]);
-                postData += "&resource=" + HttpUtility.UrlEncode(ConfigurationManager.AppSettings["GraphResourceUri"]);
+                postData += "&client_id=" + HttpUtility.UrlEncode(ClientID);
+                postData += "&resource=" + HttpUtility.UrlEncode(GraphResourceUri);
                 postData += "&code=" + HttpUtility.UrlEncode(codeResponse.DeviceCode);
                 byte[] data = encoding.GetBytes(postData);
                 request.Method = "POST";
@@ -194,7 +172,7 @@ namespace CloudStack
         public AADUser GetAzureADUser(string accessToken)
         {
             AADUser user = null;
-            string url = string.Format(ConfigurationManager.AppSettings["GraphUrl"], "me");
+            string url = string.Format(GraphUrl, "me");
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "GET";
@@ -208,13 +186,13 @@ namespace CloudStack
             }
             return user;
         }
-        public AADApplication RegisterAzureADApplication(string accessToken, string Url)
+        public void RegisterAzureADApplication(string accessToken, string Url)
         {
             AADApplication app = new AADApplication();
             app.DisplayName = "CloudStack-" + Environment.MachineName;
             app.Homepage = Url;
             app.IdentifierUris = new string[1] { Url };
-            app.ReplyUrls = new string[3] { Url, "http://localhost", "https://localhost" };
+            app.ReplyUrls = new string[1] { Url };
             app.RequriredResourceAccess = new AADRequriredResourceAccess[2] {
                 new AADRequriredResourceAccess {
                     //CloudStack needs delegated access to Azure Active Directory Graph API
@@ -236,19 +214,17 @@ namespace CloudStack
                 }
             };
             app.KeyCredentials = new AADKeyCredential[1] {
-                CreateAzureADKeyCredential()
+                CreateAzureADKeyCredential(KeyCredentialPath)
             };
 
             var existingApp = GetAzureADApplication(accessToken, app.DisplayName);
             if (existingApp != null) RemoveAzureADApplication(accessToken, existingApp.ObjectId);
             CreateAzureADApplication(accessToken, app);
-            
-            return GetAzureADApplication(accessToken, app.DisplayName);
         }
         private AADApplication GetAzureADApplication(string accessToken, string displayName)
         {
             AADApplication app = null;
-            string url = string.Format(ConfigurationManager.AppSettings["GraphUrl"] + "&$filter=displayName eq '{1}'"
+            string url = string.Format(GraphUrl + "&$filter=displayName eq '{1}'"
                 , "myorganization/applications", displayName);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -270,7 +246,7 @@ namespace CloudStack
         }
         private void RemoveAzureADApplication(string accessToken, string objectId)
         {
-            string url = string.Format(ConfigurationManager.AppSettings["GraphUrl"], "myorganization/applications/" + objectId);
+            string url = string.Format(GraphUrl, "myorganization/applications/" + objectId);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "DELETE";
@@ -280,7 +256,7 @@ namespace CloudStack
         }
         private void CreateAzureADApplication(string accessToken, AADApplication app)
         {
-            string url = string.Format(ConfigurationManager.AppSettings["GraphUrl"], "myorganization/applications/");
+            string url = string.Format(GraphUrl, "myorganization/applications/");
             string postData;
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(AADApplication));
             using (MemoryStream stream = new MemoryStream())
@@ -302,15 +278,15 @@ namespace CloudStack
             }
             WebResponse response = request.GetResponse();
         }
-        private AADKeyCredential CreateAzureADKeyCredential()
+        private AADKeyCredential CreateAzureADKeyCredential(string keyCredentialPath)
         {
             AADKeyCredential keyCred;
 
             var certificate = CertHelper.CreateCertificate(new X500DistinguishedName("CN=CloudStack AzureAD KeyCredential"), "CloudStack AzureAD KeyCredential");
             byte[] certData = certificate.Export(X509ContentType.Pfx);
-            if(File.Exists(@"X:\Dropbox\Scratch\SelfSigned\CloudStackKeyCredential.pfx"))
-                File.Delete(@"X:\Dropbox\Scratch\SelfSigned\CloudStackKeyCredential.pfx");
-            File.WriteAllBytes(@"X:\Dropbox\Scratch\SelfSigned\CloudStackKeyCredential.pfx", certData);
+            if(File.Exists(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx")))
+                File.Delete(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx"));
+            File.WriteAllBytes(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx"), certData);
 
             keyCred = new AADKeyCredential();
             keyCred.KeyId = Guid.NewGuid().ToString();
@@ -320,6 +296,14 @@ namespace CloudStack
             keyCred.Value = Convert.ToBase64String(certificate.Export(X509ContentType.Cert));
 
             return keyCred;
+        }
+        public void DummyMethodDownloadCloudStackBinaries()
+        {
+            Thread.Sleep(1000);
+        }
+        public void DummyMethodInstallCloudStackWebsite()
+        {
+            Thread.Sleep(1000);
         }
     }
 
