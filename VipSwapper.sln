@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSense", "CloudSense\Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingPoint", "TrainingPoint\TrainingPoint\TrainingPoint.csproj", "{CA602145-EF25-45D7-84F2-196C6CC76939}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStackFormsInstaller", "CloudSense\CloudStackFormsInstaller\CloudStackFormsInstaller.csproj", "{04DFB358-893B-451C-AF5A-275760C5E3BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{CA602145-EF25-45D7-84F2-196C6CC76939}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA602145-EF25-45D7-84F2-196C6CC76939}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA602145-EF25-45D7-84F2-196C6CC76939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04DFB358-893B-451C-AF5A-275760C5E3BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04DFB358-893B-451C-AF5A-275760C5E3BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04DFB358-893B-451C-AF5A-275760C5E3BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04DFB358-893B-451C-AF5A-275760C5E3BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,5 +52,6 @@ Global
 		{13308C50-9041-4189-B98F-5801FCADC2AC} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
 		{0D8FBB97-03E4-4870-83E3-6128BB48B7B3} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
 		{CA602145-EF25-45D7-84F2-196C6CC76939} = {6A2B4C1A-AE42-459A-B898-F4CCE8887310}
+		{04DFB358-893B-451C-AF5A-275760C5E3BB} = {5FFF2C36-CE83-4066-9B42-55327B754D3C}
 	EndGlobalSection
 EndGlobal

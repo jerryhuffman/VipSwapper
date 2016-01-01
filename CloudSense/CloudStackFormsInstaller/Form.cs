@@ -1,66 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Runtime.Serialization;
-using System.Net;
-using System.Configuration;
-using System.Web;
 using System.IO;
 using System.Runtime.Serialization.Json;
-using System.Threading;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Diagnostics;
-using System.IO.Compression;
-using Microsoft.Web.Administration;
+using System.Threading;
+using System.Web;
 
 namespace CloudStack
 {
-    class CloudStackConsoleInstaller
+    public partial class Form : System.Windows.Forms.Form
     {
         public static string ClientID = "9d6614ce-9a62-464f-b0c6-3c97120fb98a";
+        public static string RedirectUri = "http://www.vipswapper.com/cloudstack";
         public static string GraphResourceUri = "https://graph.windows.net";
         public static string GraphUrl = "https://graph.windows.net/{0}?api-version=1.6";
         public static string ARMResourceUri = "https://management.core.windows.net/";
-        public static string DeviceCodeUrl = "https://login.microsoftonline.com/{0}/oauth2/devicecode?api-version=1.0";
+        public static string AuthorizeUrl = "https://login.microsoftonline.com/{0}/oauth2/authorize?api-version=1.0";
         public static string TokenUrl = "https://login.microsoftonline.com/{0}/oauth2/token?api-version=1.0";
         public static string KeyCredentialPath = @"C:\CloudStack";
+        public string AADId;
 
-        static void Main(string[] args)
+        public Form()
         {
-            CloudStackConsoleInstaller installer = new CloudStackConsoleInstaller();
-            Console.Write("---------- CloudStack Installer ----------\n");
-            Console.Write("Hi there! \nFirst, this installer will download the latest CloudStack binaries." + 
-                " \nThen, it will configure a new website for CloudStack on this IIS server. \nFinally, it will register the" + 
-                " instance of CloudStack with your Azure Active Directory so that it can manage your Azure cloud.\n\n");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("Sounds good? If so, hit enter. If not, close this widow.");
-            Console.ResetColor();
-            Console.ReadLine();
-            Console.Write("\n1) Downloading CloudStack binaries ... ");
-            installer.DummyMethodDownloadCloudStackBinaries();
-            Console.Write("Done. \n\n2) Installing CloudStack website on this web server ... ");
-            installer.DummyMethodInstallCloudStackWebsite();
-            Console.Write("Done. \n\n3) Alright, let's connect this CloudStack instance with your Azure Cloud - ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("please enter the id of your Azure subscription that you wish to connect: ");
-            Console.ResetColor();
-            string subscriptionId = Console.ReadLine();
-            string aadId = installer.GetAADForSubscription(subscriptionId);
-            DeviceAuthCodeResponse codeResponse = installer.GetDeviceAuthCode(aadId);
-            Console.Write("Got it. \nNow, you must authenticate with the account that you use to manage your Azure cloud - ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write("use a web browser to open the page {0} and enter the code {1}.", codeResponse.VerificationUrl, codeResponse.UserCode);
-            Console.ResetColor();
-            Console.Write("\nPatiently waiting ... ");
-            DeviceAuthTokenResponse tokenResponse = installer.GetDeviceAuthToken(codeResponse, aadId);
-            AADUser user = installer.GetAzureADUser(tokenResponse.AccessToken);
-            Console.Write("Ah! welcome {0}! Registering CloudStack in your Azure Active Directory now ... ", user.DisplayName);
-            installer.RegisterAzureADApplication(tokenResponse.AccessToken, "http://localhost");
-            Console.Write(" All done.");
+            InitializeComponent();
+            label1.Visible = true;
+            DummyMethodDownloadCloudStackBinaries();
+            labelCheck1.Visible = true;
+            label2.Visible = true;
+            DummyMethodInstallCloudStackWebsite();
+            labelCheck2.Visible = true;
+            label3.Visible = true;
+            textBox.Visible = true;
+            button.Visible = true;
+            //GetAADForSubscription(subscriptionId);
+            //DeviceAuthCodeResponse codeResponse = installer.GetDeviceAuthCode(aadId);
+            //Console.Write("Got it. \nNow, you must authenticate with the account that you use to manage your Azure cloud - ");
+            //Console.ForegroundColor = ConsoleColor.Cyan;
+            //Console.Write("use a web browser to open the page {0} and enter the code {1}.", codeResponse.VerificationUrl, codeResponse.UserCode);
+            //Console.ResetColor();
+            //Console.Write("\nPatiently waiting ... ");
+            //DeviceAuthTokenResponse tokenResponse = installer.GetDeviceAuthToken(codeResponse, aadId);
+            //AADUser user = installer.GetAzureADUser(tokenResponse.AccessToken);
+            //Console.Write("Ah! welcome {0}! Registering CloudStack in your Azure Active Directory now ... ", user.DisplayName);
+            //installer.RegisterAzureADApplication(tokenResponse.AccessToken, "http://localhost");
+            //Console.Write(" All done.");
         }
+
         public string GetAADForSubscription(string subscriptionId)
         {
             string aadId = null;
@@ -85,90 +79,7 @@ namespace CloudStack
 
             return aadId;
         }
-        public DeviceAuthCodeResponse GetDeviceAuthCode(string aadId)
-        {
-            DeviceAuthCodeResponse codeResponse = null;
-            string url = string.Format(DeviceCodeUrl, aadId);
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-            string postData = "client_id=" + HttpUtility.UrlEncode(ClientID);
-            postData += "&resource=" + HttpUtility.UrlEncode(GraphResourceUri);
-            byte[] data = encoding.GetBytes(postData);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = data.Length;
-            request.UserAgent = "http://www.vipswapper.com/cloudstack";
-            using (Stream stream = request.GetRequestStream())
-            {
-                stream.Write(data, 0, data.Length);
-            }
-            WebResponse response = request.GetResponse();
-            using (Stream stream = response.GetResponseStream())
-            {
-                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(DeviceAuthCodeResponse));
-                codeResponse = (DeviceAuthCodeResponse)ser.ReadObject(stream);
-            }
-
-            return codeResponse;
-        }
-        public DeviceAuthTokenResponse GetDeviceAuthToken(DeviceAuthCodeResponse codeResponse, string aadId)
-        {
-            DeviceAuthTokenResponse tokenResponse = null;
-            string url = string.Format(TokenUrl, aadId);
-
-            while (true)
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
-                string postData = "grant_type=device_code";
-                postData += "&client_id=" + HttpUtility.UrlEncode(ClientID);
-                postData += "&resource=" + HttpUtility.UrlEncode(GraphResourceUri);
-                postData += "&code=" + HttpUtility.UrlEncode(codeResponse.DeviceCode);
-                byte[] data = encoding.GetBytes(postData);
-                request.Method = "POST";
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.ContentLength = data.Length;
-                request.UserAgent = "http://www.vipswapper.com/cloudstack";
-                using (Stream stream = request.GetRequestStream())
-                {
-                    stream.Write(data, 0, data.Length);
-                }
-
-                WebResponse response = null;
-                try
-                {
-                    response = request.GetResponse();
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(DeviceAuthTokenResponse));
-                        tokenResponse = (DeviceAuthTokenResponse)ser.ReadObject(stream);
-                    }
-                    break;
-                }
-                catch (WebException ex)
-                {
-                    if (ex.Response != null)
-                    {
-                        using (Stream stream = ((HttpWebResponse)ex.Response).GetResponseStream())
-                        {
-                            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(DeviceAuthTokenResponse));
-                            tokenResponse = (DeviceAuthTokenResponse)ser.ReadObject(stream);
-                        }
-                        if (tokenResponse.Error.Equals("authorization_pending", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            Thread.Sleep(codeResponse.Interval * 1000);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return tokenResponse;
-        }
         public AADUser GetAzureADUser(string accessToken)
         {
             AADUser user = null;
@@ -186,6 +97,7 @@ namespace CloudStack
             }
             return user;
         }
+
         public void RegisterAzureADApplication(string accessToken, string Url)
         {
             AADApplication app = new AADApplication();
@@ -216,11 +128,11 @@ namespace CloudStack
             app.KeyCredentials = new AADKeyCredential[1] {
                 CreateAzureADKeyCredential(KeyCredentialPath)
             };
-
             var existingApp = GetAzureADApplication(accessToken, app.DisplayName);
             if (existingApp != null) RemoveAzureADApplication(accessToken, existingApp.ObjectId);
             CreateAzureADApplication(accessToken, app);
         }
+
         private AADApplication GetAzureADApplication(string accessToken, string displayName)
         {
             AADApplication app = null;
@@ -241,9 +153,9 @@ namespace CloudStack
                     if (appResult.Applications.Length > 0) app = appResult.Applications[0];
                 }
             }
-
             return app;
         }
+
         private void RemoveAzureADApplication(string accessToken, string objectId)
         {
             string url = string.Format(GraphUrl, "myorganization/applications/" + objectId);
@@ -254,6 +166,7 @@ namespace CloudStack
             request.UserAgent = "http://www.vipswapper.com/cloudstack";
             WebResponse response = request.GetResponse();
         }
+
         private void CreateAzureADApplication(string accessToken, AADApplication app)
         {
             string url = string.Format(GraphUrl, "myorganization/applications/");
@@ -278,13 +191,14 @@ namespace CloudStack
             }
             WebResponse response = request.GetResponse();
         }
+
         private AADKeyCredential CreateAzureADKeyCredential(string keyCredentialPath)
         {
             AADKeyCredential keyCred;
 
             var certificate = CertHelper.CreateCertificate(new X500DistinguishedName("CN=CloudStack AzureAD KeyCredential"), "CloudStack AzureAD KeyCredential");
             byte[] certData = certificate.Export(X509ContentType.Pfx);
-            if(File.Exists(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx")))
+            if (File.Exists(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx")))
                 File.Delete(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx"));
             File.WriteAllBytes(Path.Combine(keyCredentialPath, "CloudStackKeyCredential.pfx"), certData);
 
@@ -297,36 +211,98 @@ namespace CloudStack
 
             return keyCred;
         }
+
         public void DummyMethodDownloadCloudStackBinaries()
         {
-            Thread.Sleep(1000);
+
         }
+
         public void DummyMethodInstallCloudStackWebsite()
         {
-            Thread.Sleep(1000);
+
         }
-    }
 
-    [DataContract]
-    public class DeviceAuthCodeResponse
-    {
-        [DataMember(Name = "device_code")]
-        public string DeviceCode { get; set; }
+        private void button_Click(object sender, EventArgs e)
+        {
+            this.textBox.Enabled = false;
+            this.button.Enabled = false;
+            AADId = GetAADForSubscription(textBox.Text);
+            string authorizeUrl = string.Format("{0}&response_type=code&client_id={1}&redirect_uri={2}&resource={3}&nonce={4}" +
+                "&response_mode=form_post&prompt=login", string.Format(AuthorizeUrl, AADId), ClientID, System.Uri.EscapeDataString(RedirectUri),
+                System.Uri.EscapeDataString(GraphResourceUri), Guid.NewGuid().ToString());
+            this.webBrowser.Visible = true;
+            this.webBrowser.Navigate(authorizeUrl);
+        }
 
-        [DataMember(Name = "expires_in")]
-        public ulong ExpiresIn { get; set; }
+        private delegate void BeforeNavigate2(object pDisp, ref dynamic url, ref dynamic Flags, ref dynamic TargetFrameName, ref dynamic PostData, ref dynamic Headers, ref bool Cancel);
 
-        [DataMember(Name = "interval")]
-        public int Interval;
+        private void Form_Load(object sender, EventArgs e)
+        {
+            this.webBrowser.GoBack();
+            dynamic d = this.webBrowser.ActiveXInstance;
 
-        [DataMember(Name = "message")]
-        public string Message;
+            d.BeforeNavigate2 += new BeforeNavigate2((object pDisp,
+                ref dynamic url,
+                ref dynamic Flags,
+                ref dynamic TargetFrameName,
+                ref dynamic PostData,
+                ref dynamic Headers,
+                ref bool Cancel) =>
+            {
+                if (url.Equals(RedirectUri.Trim()) && PostData != null)
+                {
+                    Cancel = true;
+                    string responseString = Encoding.UTF8.GetString(PostData);
+                    ProcessAuth(responseString);
+                }
+            });
+        }
 
-        [DataMember(Name = "user_code")]
-        public string UserCode;
+        private void ProcessAuth(string responseString)
+        {
+            this.webBrowser.Visible = false;
+            var nvc = HttpUtility.ParseQueryString(responseString);
+            string code = nvc["code"];
+            DeviceAuthTokenResponse tokenResponse = GetAccessToken(code);
+            AADUser user = GetAzureADUser(tokenResponse.AccessToken);
+            label4.Text = string.Format("Ah! welcome {0}! Registering CloudStack in your Azure Active Directory now ... ", user.DisplayName);
+            label4.Visible = true;
+            RegisterAzureADApplication(tokenResponse.AccessToken, "http://localhost");
+            labelCheck3.Visible = true;
+            label5.Visible = true;
+        }
 
-        [DataMember(Name = "verification_url")]
-        public string VerificationUrl;
+        public DeviceAuthTokenResponse GetAccessToken(string code)
+        {
+            DeviceAuthTokenResponse tokenResponse = null;
+            string url = string.Format(TokenUrl, AADId);
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+            string postData = "grant_type=authorization_code";
+            postData += "&client_id=" + HttpUtility.UrlEncode(ClientID);
+            postData += "&resource=" + HttpUtility.UrlEncode(GraphResourceUri);
+            postData += "&redirect_uri=" + HttpUtility.UrlEncode(RedirectUri);
+            postData += "&code=" + HttpUtility.UrlEncode(code);
+            byte[] data = encoding.GetBytes(postData);
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = data.Length;
+            request.UserAgent = "http://www.vipswapper.com/cloudstack";
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            WebResponse response = request.GetResponse();
+            using (Stream stream = response.GetResponseStream())
+            {
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(DeviceAuthTokenResponse));
+                tokenResponse = (DeviceAuthTokenResponse)ser.ReadObject(stream);
+            }
+
+            return tokenResponse;
+        }
     }
     [DataContract]
     public class DeviceAuthTokenResponse
