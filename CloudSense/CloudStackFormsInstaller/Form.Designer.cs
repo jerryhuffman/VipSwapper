@@ -156,13 +156,15 @@
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.Size = new System.Drawing.Size(464, 601);
-            this.webBrowser.TabIndex = 14;
+            this.webBrowser.TabIndex = 15;
+            this.webBrowser.Url = new System.Uri("", System.UriKind.Relative);
             this.webBrowser.Visible = false;
             // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(464, 601);
             this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.label5);
